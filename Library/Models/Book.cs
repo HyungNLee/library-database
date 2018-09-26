@@ -203,14 +203,14 @@ namespace Library.Models
 
       cmd.Parameters.AddWithValue("@searchId", this.Id);
 
-      MySqlDataReader rdr = cmd.ExecuteReader as MySqlDataReader();
+      MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
 
-      while(rdr = Read())
+      while(rdr.Read())
       {
         int id = rdr.GetInt32(0);
         string name = rdr.GetString(1);
         Author newAuthor =  new Author(name,id);
-        allAuthor.Add(newAuthors);
+        allAuthors.Add(newAuthor);
       }
   
       conn.Close();
@@ -240,8 +240,9 @@ namespace Library.Models
       }
     }
 
-    public List<Copy> GetCopies()
+    public List<int> GetCopyIds()
     {
+      List<int> allCopyIds = new List<int>() {};
       MySqlConnection conn = DB.Connection();
       conn.Open();
 
@@ -250,8 +251,21 @@ namespace Library.Models
 
       cmd.Parameters.AddWithValue("@searchId", this.Id);
 
-      
-    }
+      MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
 
+      while(rdr.Read())
+      {
+        int newId = rdr.GetInt32(0);
+        allCopyIds.Add(newId);
+      }
+
+      conn.Close();
+      if (conn != null)
+      {
+        conn.Dispose();
+      }
+
+      return allCopyIds;
+    }
   }
 }

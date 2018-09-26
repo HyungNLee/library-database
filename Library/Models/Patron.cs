@@ -5,27 +5,27 @@ using MySql.Data.MySqlClient;
 
 namespace Library.Models
 {
-  public class Author
+  public class Patron
   {
     public int Id {get; set;}
-    public string Name{get; set;}
+    public string Name {get; set;}
 
-    public Author(string newName, int newId = 0)
+    public Patron(string newName, int newId = 0)
     {
       Id = newId;
       Name = newName;
     }
 
-    public override bool Equals(System.Object otherAuthor)
+    public override bool Equals(System.Object otherPatron)
     {
-      if(!(otherAuthor is Author))
+      if(!(otherPatron is Patron))
       {
         return false;
       }
       else
       {
-        Author newAuthor = (Author) otherAuthor;
-        bool nameEquality = (this.Name == newAuthor.Name);
+        Patron newPatron = (Patron) otherPatron;
+        bool nameEquality = (this.Name == newPatron.Name);
         return (nameEquality);
       }
     }
@@ -34,15 +34,15 @@ namespace Library.Models
     {
       return this.Name.GetHashCode();
     }
-    
-    public static List<Author> GetAll()
+
+    public static List<Patron> GetAll()
     {
-      List<Author> allAuthors = new List<Author>{};
+      List<Patron> allPatrons = new List<Patron>{};
       MySqlConnection conn = DB.Connection();
       conn.Open();
 
       var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"SELECT * FROM authors;";
+      cmd.CommandText = @"SELECT * FROM patrons;";
 
       MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
 
@@ -50,8 +50,8 @@ namespace Library.Models
       {
         int id = rdr.GetInt32(0);
         string name = rdr.GetString(1);
-        Author newAuthor = new Author(name, id);
-        allAuthors.Add(newAuthor);
+        Patron newPatron = new Patron(name, id);
+        allPatrons.Add(newPatron);
       }
       conn.Close();
       if(conn != null)
@@ -59,7 +59,7 @@ namespace Library.Models
         conn.Dispose();
       }  
 
-      return allAuthors;
+      return allPatrons;
     }
 
     public static void DeleteAll()
@@ -68,7 +68,7 @@ namespace Library.Models
       conn.Open();
 
       var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"TRUNCATE TABLE authors;";
+      cmd.CommandText = @"TRUNCATE TABLE patrons;";
 
       cmd.ExecuteNonQuery();
       conn.Close();
@@ -84,7 +84,7 @@ namespace Library.Models
       conn.Open();
 
       var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"INSERT INTO authors (name) VALUES (@name);";
+      cmd.CommandText = @"INSERT INTO patrons (name) VALUES (@name);";
 
       cmd.Parameters.AddWithValue("@name", this.Name);
 
@@ -100,13 +100,13 @@ namespace Library.Models
       }
     }
 
-    public static Author Find(int id)
+    public static Patron Find(int id)
     {
       MySqlConnection conn = DB.Connection();
       conn.Open();
 
       var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"SELECT * FROM authors WHERE id = @searchId;";
+      cmd.CommandText = @"SELECT * FROM patrons WHERE id = @searchId;";
 
       cmd.Parameters.AddWithValue("@searchId", id);
 
@@ -121,7 +121,7 @@ namespace Library.Models
         newName = rdr.GetString(1);
       }
 
-      Author newAuthor = new Author(newName, newId);
+      Patron newPatron = new Patron(newName, newId);
 
       conn.Close();
       if (conn != null)
@@ -129,7 +129,7 @@ namespace Library.Models
         conn.Dispose();
       }
 
-      return newAuthor;
+      return newPatron;
     }
 
     public void Edit(string newName)
@@ -138,7 +138,7 @@ namespace Library.Models
       conn.Open();
 
       var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"UPDATE authors SET name = @newName WHERE id = @searchId;";
+      cmd.CommandText = @"UPDATE patrons SET name = @newName WHERE id = @searchId;";
 
       cmd.Parameters.AddWithValue("@newName", newName);
       cmd.Parameters.AddWithValue("@searchId", this.Id);
@@ -160,7 +160,7 @@ namespace Library.Models
       conn.Open();
 
       var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"DELETE FROM authors WHERE id = @searchId; DELETE FROM books_authors WHERE author_id = @searchId;";
+      cmd.CommandText = @"DELETE FROM patrons WHERE id = @searchId; DELETE FROM checkouts WHERE patron_id = @searchId;";
 
       cmd.Parameters.AddWithValue("@searchId", this.Id);
 
@@ -172,34 +172,14 @@ namespace Library.Models
       }
     }
 
-    public void AddBook(Book newBook)
+    public List<Checkout> GetCheckouts()
     {
+      List<Checkout> allCheckouts = new List<Checkout>{};
       MySqlConnection conn = DB.Connection();
       conn.Open();
 
       var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"INSERT INTO books_authors (book_id, author_id) VALUES (@bookId, @authorId);";
-
-      cmd.Parameters.AddWithValue("@bookId", newBook.Id);
-      cmd.Parameters.AddWithValue("@authorId", this.Id);
-
-      cmd.ExecuteNonQuery();
-
-      conn.Close();
-      if(conn != null)
-      {
-        conn.Dispose();
-      }
-    }
-
-    public List<Book> GetBooks()
-    {
-      List<Book> allBooks = new List<Book>{};
-      MySqlConnection conn = DB.Connection();
-      conn.Open();
-
-      var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"SELECT books.* FROM authors JOIN books_authors ON (authors.id = books_authors.author_id) JOIN books ON (books_authors.book_id = books.id) WHERE authors.id = @searchId;";
+      cmd.CommandText = @"SELECT checkouts.* FROM patrons JOIN checkouts ON (patrons.id = checkouts.patron_id) WHERE patrons.id = @searchId;";
 
       cmd.Parameters.AddWithValue("@searchId", this.Id);
 
@@ -208,18 +188,22 @@ namespace Library.Models
       while(rdr.Read())
       {
         int id = rdr.GetInt32(0);
-        string title = rdr.GetString(1);
-        Book newBook =  new Book(title, id);
-        allBooks.Add(newBook);
+        int patronId = rdr.GetInt32(1);
+        int copyId = rdr.GetInt32(2);
+        DateTime checkoutDate = rdr.GetDateTime(3);
+        DateTime dueDate = rdr.GetDateTime(4);
+        bool isReturned = rdr.GetBoolean(5);
+        Checkout newCheckout = new Checkout(patronId, copyId, checkoutDate, dueDate, isReturned, id);
+        allCheckouts.Add(newCheckout);
       }
-  
+
       conn.Close();
-      if(conn != null)
+      if (conn != null)
       {
         conn.Dispose();
       }
-      return allBooks;
-    }
 
+      return allCheckouts;
+    }
   }
 }
