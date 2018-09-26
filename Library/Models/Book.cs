@@ -16,6 +16,25 @@ namespace Library.Models
       Id = id;
     }
 
+    public override bool Equals(System.Object otherBook)
+    {
+      if(!(otherBook is Book))
+      {
+        return false;
+      }
+      else
+      {
+        Book newBook = (Book) otherBook;
+        bool titleEquality = (this.Title == newBook.Title);
+        return (titleEquality);
+      }
+    }
+
+    public override int GetHashCode()
+    {
+      return this.Title.GetHashCode();
+    }
+
     public static List<Book> GetAll()
     {
       List<Book> allBooks = new List<Book>{};
@@ -25,7 +44,7 @@ namespace Library.Models
       var cmd = conn.CreateCommand() as MySqlCommand;
       cmd.CommandText = @"SELECT * FROM books;";
 
-      MySqlDataReader rdr = cmd.ExecuteRaeder() as MySqlDataReader;
+      MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
 
       while(rdr.Read())
       {
@@ -41,6 +60,22 @@ namespace Library.Models
       }  
 
       return allBooks;
+    }
+
+    public static void DeleteAll()
+    {
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+
+      var cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"TRUNCATE TABLE books;";
+
+      cmd.ExecuteNonQuery();
+      conn.Close();
+      if(conn != null)
+      {
+        conn.Dispose();
+      }
     }
   }
 }
