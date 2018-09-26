@@ -15,6 +15,7 @@ namespace Library.TestTools
     public void Dispose()
     {
       Book.DeleteAll();
+      Author.DeleteAll();
     }
 
     [TestMethod]
@@ -69,6 +70,18 @@ namespace Library.TestTools
 
       //Assert
       Assert.AreEqual(newBook.Title, updateName);
+    }
+    
+    [TestMethod]
+    public void Delete_DeleteRightBook_0()
+    {
+      Book newBook = new Book("Meria Potter");
+      newBook.Save();
+
+      newBook.Delete();
+      List<Book> allBooks = Book.GetAll();
+
+      Assert.AreEqual(allBooks.Count, 0);
     }
   }
 }
