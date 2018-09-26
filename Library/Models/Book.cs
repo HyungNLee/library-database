@@ -77,5 +77,82 @@ namespace Library.Models
         conn.Dispose();
       }
     }
+
+    public void Save()
+    {
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+
+      var cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"INSERT INTO books (title) VALUES (@title);";
+
+      cmd.Parameters.AddWithValue("@title", this.Title);
+
+      cmd.ExecuteNonQuery();
+
+      this.Id = (int) cmd.LastInsertedId;
+
+      conn.Close();
+
+      if (conn != null)
+      {
+        conn.Dispose();
+      }
+    }
+
+    public static Book Find(int id)
+    {
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+
+      var cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"SELECT * FROM books WHERE id = @searchId;";
+
+      cmd.Parameters.AddWithValue("@searchId", id);
+
+      MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
+
+      int newId = 0;
+      string newTitle= "";
+
+      while(rdr.Read())
+      {
+        newId = rdr.GetInt32(0);
+        newTitle = rdr.GetString(1);
+      }
+
+      Book newBook = new Book(newTitle, newId);
+
+      conn.Close();
+      if (conn != null)
+      {
+        conn.Dispose();
+      }
+
+      return newBook;
+    }
+
+    public void Edit(string newTitle)
+    {
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+
+      var cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"UPDATE books SET title = @newTitle WHERE id = @searchId;";
+
+      cmd.Parameters.AddWithValue("@newTitle", newTitle);
+      cmd.Parameters.AddWithValue("@searchId", this.Id);
+
+      cmd.ExecuteNonQuery();
+
+      this.Title = newTitle;
+
+      conn.Close();
+      if (conn != null)
+      {
+        conn.Dispose();
+      }
+    }
+
   }
 }
