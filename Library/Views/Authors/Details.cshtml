@@ -1,0 +1,13 @@
+@{
+  Layout = "_Layout";
+}
+
+<h1>@Model.Name</h1>
+<hr>
+<h3>Books by @Model.Name</h3>
+<ul>
+  @foreach (var book in @Model.GetBooks())
+  {
+    <a href="/books/@book.id"><li>@book.Title</li></a>
+  }
+</ul>

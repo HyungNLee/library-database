@@ -1,0 +1,18 @@
+@{
+  Layout = "_Layout";
+}
+
+<h2>All Books in Database</h2>
+<ul>
+  @foreach (var book in Model)
+  {
+    <a href="/books/@book.Id"><li> @book.Title </li></a> <br>
+  }
+
+</ul>
+<hr>
+<form action="/books/new" method="post">
+  <label for="newTitle">Book Title</label>
+  <input type="text" name="newTitle" />
+  <button class="btn btn-success" type="submit">Add Book</button>
+</form>

@@ -1,0 +1,16 @@
+@{
+  Layout = "_Layout";
+}
+<h2>All Authors in Database</h2>
+<ul>
+  @foreach (var author in Model)
+  {
+    <a href="/authors/@author.Id/"><li>@author.Name</li></a>
+  }
+</ul>
+<hr>
+<form action="/authors/new" method="post">
+  <label for="newName">Author Name: </label>
+  <input id="newName" name="newName" type="text">
+  <button type="submit" class="btn btn-success">Add Author</button>
+</form>
