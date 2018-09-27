@@ -11,3 +11,8 @@ div#footer {
 .container-fluid {
   margin-bottom: 50px;
 }
+
+.jumbotron {
+  text-align: center;
+  background-color: lightblue;
+}

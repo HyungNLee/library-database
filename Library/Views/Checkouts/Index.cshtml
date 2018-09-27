@@ -1,0 +1,26 @@
+@{
+  Layout = "_Layout";
+}
+
+<h2>Checkout Datebase</h2>
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">ID#</th>
+      <th scope="col">Patron Name</th>
+      <th scope="col">Book Title</th>
+      <th scope="col">Return Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach (var checkout in Model)
+    {
+      <tr>
+        <th scope="row">@checkout.Id</th>
+        <td><a href="/patrons/@checkout.GetPatron().Id">@checkout.GetPatron().Name</a></td>
+        <td><a href="/books/@checkout.GetBook().Id">@checkout.GetBook().Title</a></td>
+        <td>@checkout.IsReturned</td>
+    </tr>
+    }
+  </tbody>
+</table>
