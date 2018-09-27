@@ -4,7 +4,7 @@
 
 <h1>@Model["book"].Title</h1>
 <hr>
-<h3>@Model["book"].Title Authors: </h3>
+<h3>Authors: </h3>
 <ul>
   @foreach (var author in @Model["book"].GetAuthors())
   {
@@ -12,7 +12,7 @@
   }
 </ul>
 <hr>
-<h5>Select Existing Author or Add New Author</h5>
+<h5>Add Existing Author or Add New Author</h5>
 <form action="/books/addauthor" method="post">
   <input type="hidden" name="bookId" value=@Model["book"].Id>
   <div class="row">
@@ -34,5 +34,28 @@
     </div>
   </div>
   <br>
-  <button class="btn btn-success" type="submit">Add Book</button>
+  <button class="btn btn-success" type="submit">Add Author</button>
 </form>
+<hr>
+<br>
+<a href='/books/@Model["book"].Id/addcopy' class="btn btn-warning">Add Copy</a>
+<br>
+<br>
+<h5>All Copies</h5>
+<table class="table">
+  <thead class="thead">
+    <tr>
+      <th scope="col">Copy Id</th>
+      <th scope="col">Available</th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach (var copy in Model["copiesList"])
+    {
+      <tr>
+      <th scope="row">@copy.Id</th>
+      <td>@copy.IsAvailable</td>
+    </tr>
+    }
+  </tbody>
+</table>

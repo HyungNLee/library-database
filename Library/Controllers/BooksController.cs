@@ -44,10 +44,12 @@ namespace Library.Controllers
     public ActionResult Details(int id)
     {
       Book newBook = Book.Find(id);
+      List<Copy> allCopies = newBook.GetCopies();
       List<Author> allAuthors = Author.GetAll();
       Dictionary<string, object> model = new Dictionary<string, object>{};
       model.Add("book", newBook);
       model.Add("authorList", allAuthors);
+      model.Add("copiesList", allCopies);
       return View(model);
     }
 
@@ -80,6 +82,14 @@ namespace Library.Controllers
       Book foundBook = Book.Find(id);
       foundBook.Delete();
       return RedirectToAction("Index");
+    }
+
+    [HttpGet("/books/{id}/addcopy")]
+    public ActionResult AddCopy(int id)
+    {
+      Book foundBook = Book.Find(id);
+      foundBook.AddCopy();
+      return RedirectToAction("Details", new { id = id });
     }
   }
 }

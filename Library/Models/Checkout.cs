@@ -103,23 +103,12 @@ namespace Library.Models
       conn.Open();
 
       var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"INSERT INTO checkouts (patron_id, copy_id, checkout_date, due_date, is_returned) VALUES (@patronId, @copyId, @checkoutDate, @dueDate, @isReturned);";
-
-      int boolNum;
-      if (this.IsReturned == true)
-      {
-        boolNum = 1;
-      }
-      else
-      {
-        boolNum = 0;
-      }
+      cmd.CommandText = @"INSERT INTO checkouts (patron_id, copy_id, checkout_date, due_date, is_returned) VALUES (@patronId, @copyId, @checkoutDate, @dueDate, 0); UPDATE copies SET (is_available = 0) WHERE id = @copyId;";
 
       cmd.Parameters.AddWithValue("@patronId", this.PatronId);
       cmd.Parameters.AddWithValue("@copyId", this.CopyId);
       cmd.Parameters.AddWithValue("@checkoutDate", this.CheckoutDate);
       cmd.Parameters.AddWithValue("@dueDate", this.DueDate);
-      cmd.Parameters.AddWithValue("@isReturned", boolNum);
 
       cmd.ExecuteNonQuery();
 
@@ -180,20 +169,10 @@ namespace Library.Models
       conn.Open();
 
       var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"UPDATE checkouts SET is_returned = @returned WHERE id = @searchId;";
+      cmd.CommandText = @"UPDATE checkouts SET is_returned = 1 WHERE id = @searchId; UPDATE copies SET (is_available = 1) WHERE id = @copyId;";
 
-      int boolNum;
-      if (returned == true)
-      {
-        boolNum = 1;
-      }
-      else
-      {
-        boolNum = 0;
-      }
-
-      cmd.Parameters.AddWithValue("@returned", boolNum);
       cmd.Parameters.AddWithValue("@searchId", this.Id);
+      cmd.Parameters.AddWithValue("@copyId", this.CopyId);
 
       cmd.ExecuteNonQuery();
 

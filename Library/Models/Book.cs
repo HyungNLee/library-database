@@ -160,7 +160,7 @@ namespace Library.Models
       conn.Open();
 
       var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"DELETE FROM books WHERE id = @searchId; DELETE FROM books_authors WHERE book_id = @searchId;";
+      cmd.CommandText = @"DELETE FROM books WHERE id = @searchId; DELETE FROM books_authors WHERE book_id = @searchId; DELETE FROM copies WHERE book_id = @searchId;";
 
       cmd.Parameters.AddWithValue("@searchId", this.Id);
 
@@ -240,9 +240,9 @@ namespace Library.Models
       }
     }
 
-    public List<int> GetCopyIds()
+    public List<Copy> GetCopies()
     {
-      List<int> allCopyIds = new List<int>() {};
+      List<Copy> allCopies = new List<Copy>() {};
       MySqlConnection conn = DB.Connection();
       conn.Open();
 
@@ -256,7 +256,10 @@ namespace Library.Models
       while(rdr.Read())
       {
         int newId = rdr.GetInt32(0);
-        allCopyIds.Add(newId);
+        int newBookId = rdr.GetInt32(1);
+        bool newBool = rdr.GetBoolean(2);
+        Copy newCopy = new Copy(newBookId, newBool, newId);
+        allCopies.Add(newCopy);
       }
 
       conn.Close();
@@ -265,7 +268,38 @@ namespace Library.Models
         conn.Dispose();
       }
 
-      return allCopyIds;
+      return allCopies;
+    }
+
+    public List<Copy> GetAvailableCopies()
+    {
+      List<Copy> allCopies = new List<Copy>() {};
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+
+      var cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"SELECT * FROM copies WHERE (book_id = @searchId) AND (is_avaiable = 1);";
+
+      cmd.Parameters.AddWithValue("@searchId", this.Id);
+
+      MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
+
+      while(rdr.Read())
+      {
+        int newId = rdr.GetInt32(0);
+        int newBookId = rdr.GetInt32(1);
+        bool newBool = rdr.GetBoolean(2);
+        Copy newCopy = new Copy(newBookId, newBool, newId);
+        allCopies.Add(newCopy);
+      }
+
+      conn.Close();
+      if (conn != null)
+      {
+        conn.Dispose();
+      }
+
+      return allCopies;
     }
   }
 }
