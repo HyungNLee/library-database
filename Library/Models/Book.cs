@@ -278,7 +278,7 @@ namespace Library.Models
       conn.Open();
 
       var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"SELECT * FROM copies WHERE (book_id = @searchId) AND (is_avaiable = 1);";
+      cmd.CommandText = @"SELECT * FROM copies WHERE (book_id = @searchId) AND (is_available = 1);";
 
       cmd.Parameters.AddWithValue("@searchId", this.Id);
 
@@ -300,6 +300,33 @@ namespace Library.Models
       }
 
       return allCopies;
+    }
+
+    public static List<Book> GetAllAvailableBooks()
+    {
+      List<Book> allBooks = new List<Book>{};
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+
+      var cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"SELECT DISTINCT books.* FROM books JOIN copies ON (books.id = copies.book_id AND copies.is_available = 1);";
+
+      MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
+
+      while(rdr.Read())
+      {
+        int id = rdr.GetInt32(0);
+        string title = rdr.GetString(1);
+        Book newBook = new Book(title, id);
+        allBooks.Add(newBook);
+      }
+      conn.Close();
+      if(conn != null)
+      {
+        conn.Dispose();
+      }  
+
+      return allBooks;
     }
   }
 }

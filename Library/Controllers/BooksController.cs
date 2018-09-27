@@ -7,7 +7,7 @@ namespace Library.Controllers
 {
   public class BooksController : Controller
   {
-    [HttpGet]
+    [HttpGet("/books")]
     public ActionResult Index()
     {
       List<Book> allBooks = Book.GetAll();

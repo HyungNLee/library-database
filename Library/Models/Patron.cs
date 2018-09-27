@@ -205,5 +205,73 @@ namespace Library.Models
 
       return allCheckouts;
     }
+
+    public List<Checkout> GetAllActiveCheckouts()
+    {
+      List<Checkout> allCheckouts = new List<Checkout>{};
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+
+      var cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"SELECT * FROM checkouts WHERE (patron_id = @searchId) AND (is_returned = 0);";
+
+      cmd.Parameters.AddWithValue("@searchId", this.Id);
+
+      MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
+
+      while(rdr.Read())
+      {
+        int id = rdr.GetInt32(0);
+        int patronId = rdr.GetInt32(1);
+        int copyId = rdr.GetInt32(2);
+        DateTime checkoutDate = rdr.GetDateTime(3);
+        DateTime dueDate = rdr.GetDateTime(4);
+        bool isReturned = rdr.GetBoolean(5);
+        Checkout newCheckout = new Checkout(patronId, copyId, checkoutDate, dueDate, isReturned, id);
+        allCheckouts.Add(newCheckout);
+      }
+
+      conn.Close();
+      if(conn != null)
+      {
+        conn.Dispose();
+      }  
+
+      return allCheckouts;
+    }
+
+    public List<Checkout> GetAllPastCheckouts()
+    {
+      List<Checkout> allCheckouts = new List<Checkout>{};
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+
+      var cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"SELECT * FROM checkouts WHERE (patron_id = @searchId) AND (is_returned = 1);";
+
+      cmd.Parameters.AddWithValue("@searchId", this.Id);
+
+      MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
+
+      while(rdr.Read())
+      {
+        int id = rdr.GetInt32(0);
+        int patronId = rdr.GetInt32(1);
+        int copyId = rdr.GetInt32(2);
+        DateTime checkoutDate = rdr.GetDateTime(3);
+        DateTime dueDate = rdr.GetDateTime(4);
+        bool isReturned = rdr.GetBoolean(5);
+        Checkout newCheckout = new Checkout(patronId, copyId, checkoutDate, dueDate, isReturned, id);
+        allCheckouts.Add(newCheckout);
+      }
+
+      conn.Close();
+      if(conn != null)
+      {
+        conn.Dispose();
+      }  
+
+      return allCheckouts;
+    }
   }
 }

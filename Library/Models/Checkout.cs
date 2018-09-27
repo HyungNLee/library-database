@@ -103,7 +103,7 @@ namespace Library.Models
       conn.Open();
 
       var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"INSERT INTO checkouts (patron_id, copy_id, checkout_date, due_date, is_returned) VALUES (@patronId, @copyId, @checkoutDate, @dueDate, 0); UPDATE copies SET (is_available = 0) WHERE id = @copyId;";
+      cmd.CommandText = @"INSERT INTO checkouts (patron_id, copy_id, checkout_date, due_date, is_returned) VALUES (@patronId, @copyId, @checkoutDate, @dueDate, 0); UPDATE copies SET is_available = 0 WHERE id = @copyId;";
 
       cmd.Parameters.AddWithValue("@patronId", this.PatronId);
       cmd.Parameters.AddWithValue("@copyId", this.CopyId);
@@ -163,20 +163,20 @@ namespace Library.Models
       return newCheckout;
     }
 
-    public void ReturnBook(bool returned)
+    public void ReturnBook()
     {
       MySqlConnection conn = DB.Connection();
       conn.Open();
 
       var cmd = conn.CreateCommand() as MySqlCommand;
-      cmd.CommandText = @"UPDATE checkouts SET is_returned = 1 WHERE id = @searchId; UPDATE copies SET (is_available = 1) WHERE id = @copyId;";
+      cmd.CommandText = @"UPDATE checkouts SET is_returned = 1 WHERE id = @searchId; UPDATE copies SET is_available = 1 WHERE id = @copyId;";
 
       cmd.Parameters.AddWithValue("@searchId", this.Id);
       cmd.Parameters.AddWithValue("@copyId", this.CopyId);
 
       cmd.ExecuteNonQuery();
 
-      this.IsReturned = returned;
+      this.IsReturned = true;
 
       conn.Close();
       if (conn != null)
@@ -201,6 +201,106 @@ namespace Library.Models
       {
         conn.Dispose();
       }
+    }
+
+    public Patron GetPatron()
+    {
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+
+      var cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"SELECT * FROM patrons WHERE id = @searchId;";
+
+      cmd.Parameters.AddWithValue("@searchId", this.PatronId);
+
+      MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
+
+      int newId = 0;
+      string newName= "";
+
+      while(rdr.Read())
+      {
+        newId = rdr.GetInt32(0);
+        newName = rdr.GetString(1);
+      }
+
+      Patron newPatron = new Patron(newName, newId);
+
+      conn.Close();
+      if (conn != null)
+      {
+        conn.Dispose();
+      }
+
+      return newPatron;
+    }
+
+    public Copy GetCopy()
+    {
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+
+      var cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"SELECT * FROM copies WHERE id = @searchId;";
+
+      cmd.Parameters.AddWithValue("@searchId", this.CopyId);
+
+      MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
+
+      int newId = 0;
+      int newBookId= 0;
+      bool IsAvailable = false;
+
+
+      while(rdr.Read())
+      {
+        newId = rdr.GetInt32(0);
+        newBookId= rdr.GetInt32(1);
+        IsAvailable = rdr.GetBoolean(2);
+      }
+
+      Copy newCopy = new Copy(newBookId, IsAvailable, newId);
+
+      conn.Close();
+      if (conn != null)
+      {
+        conn.Dispose();
+      }
+
+      return newCopy;
+    }
+
+    public Book GetBook()
+    {
+      MySqlConnection conn = DB.Connection();
+      conn.Open();
+
+      var cmd = conn.CreateCommand() as MySqlCommand;
+      cmd.CommandText = @"SELECT books.* FROM copies JOIN books ON (copies.book_id = books.id) WHERE copies.id = @searchId;";
+
+      cmd.Parameters.AddWithValue("@searchId", this.CopyId);
+
+      MySqlDataReader rdr = cmd.ExecuteReader() as MySqlDataReader;
+
+      int newId = 0;
+      string newBookTitle = "";
+
+
+      while(rdr.Read())
+      {
+        newId = rdr.GetInt32(0);
+        newBookTitle= rdr.GetString(1);
+      }
+
+      Book newBook = new Book(newBookTitle, newId);
+
+      conn.Close();
+      if (conn != null)
+      {
+        conn.Dispose();
+      }
+
+      return newBook;
     }
 
 

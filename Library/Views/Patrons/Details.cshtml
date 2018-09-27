@@ -2,18 +2,62 @@
   Layout = "_Layout";
 }
 
-<h1>@Model.Name</h1>
+<h1>@Model["patron"].Name</h1>
+<h3>Active Checkouts</h3>
 <table class="table">
   <thead>
     <tr>
-      <th scope="col">Current Checkouts</th>
-      <th scope="col">Past Checkouts</th>
+      <th scope="col">Checkout #</th>
+      <th scope="col">Book Title</th>
+      <th scope="col">Checkout Date</th>
+      <th scope="col">Due Date</th>
+      <th scope="col">Return</th>
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <td></td>
-      <tr></tr>
-    </tr>
+    @foreach (var checkout in @Model["patron"].GetAllActiveCheckouts())
+    {
+      <tr>
+        <th scope="row">@checkout.Id</th>
+        <td>@checkout.GetBook().Title</td>
+        <td>@checkout.CheckoutDate</td>
+        <td>@checkout.DueDate</td>
+        <td><a href='/patrons/@Model["patron"].Id/checkouts/@checkout.Id/return' class="btn btn-warning">Return Book</a></td>
+      </tr>
+    }
   </tbody>
 </table>
+<hr>
+<h3>Past Checkouts</h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Checkout #</th>
+      <th scope="col">Book Title</th>
+      <th scope="col">Checkout Date</th>
+      <th scope="col">Due Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach (var checkout in @Model["patron"].GetAllPastCheckouts())
+    {
+      <tr>
+        <th scope="row">@checkout.Id</th>
+        <td>@checkout.GetBook().Title</td>
+        <td>@checkout.CheckoutDate</td>
+        <td>@checkout.DueDate</td>
+      </tr>
+    }
+  </tbody>
+</table>
+<hr>
+<form action="/patrons/newcheckout" method="post">
+  <input type="hidden" value=@Model["patron"].Id name="patronId">
+  <select name="bookId">
+    @foreach (var book in Model["bookList"])
+    {
+      <option value=@book.Id>@book.Title</option>
+    }
+  </select>
+  <button type="submit" class="btn btn-info">Checkout Book</button>
+</form>
