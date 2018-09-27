@@ -6,6 +6,7 @@ div#footer {
   color:#CCC;
   background:#333;
   padding:8px;
+  text-align: center;
 }
 
 .container-fluid {
@@ -13,7 +14,13 @@ div#footer {
 }
 
 .jumbotron {
+  color: white;
+  text-shadow: 3px 3px black;
   text-align: center;
-  background-color: lightblue;
+  background-image: url("../img/timeline.jpeg");
   font-size: 70px;
 }  
+
+body {
+  font-family: 'Josefin Slab', serif;
+}
