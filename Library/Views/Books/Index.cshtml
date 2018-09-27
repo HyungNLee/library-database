@@ -3,16 +3,57 @@
 }
 
 <h2>All Books in Database</h2>
-<ul>
-  @foreach (var book in Model)
-  {
-    <a href="/books/@book.Id"><li> @book.Title </li></a> <br>
-  }
-
-</ul>
+<table class="table">
+  <thead class="thead">
+    <tr>
+      <th scope="col">Title</th>
+      <th scope="col">Authors</th>
+      <th scope="col"># of Copies</th>
+      <th scope="col">DELETE</th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach (var book in Model["bookList"])
+    {
+      <tr>
+        <th scope="row"><a href="/books/@book.Id">@book.Title</a></th>
+        <td>
+          <ul>
+            @foreach (var author in book.GetAuthors())
+            {
+              <li>@author.Name</li>
+            }
+          </ul>
+        </td>
+        <td>@book.GetCopyIds().Count</td>
+        <td><a href='/books/@book.Id/delete' class="btn btn-danger">DELETE</a></td>
+      </tr>
+    }
+  </tbody>
+</table>
 <hr>
+<h3>Add A New Book</h3>
 <form action="/books/new" method="post">
-  <label for="newTitle">Book Title</label>
-  <input type="text" name="newTitle" />
+  <label for="newTitle">Book Title: </label>
+  <input type="text" name="newTitle" /><br><br>
+  <div class="row">
+    <div class="col-5">
+      <label for="addAuthor">Select Existing Author or Add New Author: </label><br>
+      <select name="addAuthor">
+        @foreach (var author in @Model["authorList"])
+        {
+          <option value=@author.Id>@author.Name</option>
+        }
+      </select>
+    </div>
+    <div class="col-2">
+      <h5>OR</h5>
+    </div>
+    <div class="col-5">
+      <label for ="newAuthor">Add New Author</label>
+      <input type="text" name="newAuthor">
+    </div>
+  </div>
+  <br>
   <button class="btn btn-success" type="submit">Add Book</button>
 </form>

@@ -11,21 +11,75 @@ namespace Library.Controllers
     public ActionResult Index()
     {
       List<Book> allBooks = Book.GetAll();
-      return View(allBooks);
+      List<Author> allAuthors = Author.GetAll();
+      Dictionary<string, object> model = new Dictionary<string, object>{};
+      model.Add("bookList", allBooks);
+      model.Add("authorList", allAuthors);
+      return View(model);
     }
 
     [HttpPost("/books/new")]
-    public ActionResult Create()
+    public ActionResult Create(string newAuthor, string newTitle, string addAuthor)
     {
-      Book newBook = new Book(Request.Form["newTitle"]);
+      Author addThisAuthor;
+      int addAuthorInt = int.Parse(addAuthor);
+
+      if (newAuthor != null)
+      {
+        addThisAuthor = new Author(newAuthor);
+        addThisAuthor.Save();
+      }
+      else
+      {
+        addThisAuthor = Author.Find(addAuthorInt);
+      }
+
+      Book newBook = new Book(newTitle);
       newBook.Save();
+      newBook.AddAuthor(addThisAuthor);
       return RedirectToAction("Index");
     }
+
     [HttpGet("/books/{id}")]
     public ActionResult Details(int id)
     {
       Book newBook = Book.Find(id);
-      return View(newBook);
+      List<Author> allAuthors = Author.GetAll();
+      Dictionary<string, object> model = new Dictionary<string, object>{};
+      model.Add("book", newBook);
+      model.Add("authorList", allAuthors);
+      return View(model);
+    }
+
+    [HttpPost("books/addauthor")]
+    public ActionResult AddAuthor(string bookId, string newAuthor, string addAuthor)
+    {
+      Author addThisAuthor;
+
+      int bookIdInt = int.Parse(bookId);
+      int addAuthorInt = int.Parse(addAuthor);
+
+      if (newAuthor != null)
+      {
+        addThisAuthor = new Author(newAuthor);
+        addThisAuthor.Save();
+      }
+      else
+      {
+        addThisAuthor = Author.Find(addAuthorInt);
+      }
+      Book foundBook = Book.Find(bookIdInt);
+      foundBook.AddAuthor(addThisAuthor);
+
+      return RedirectToAction("Details", new { id = bookId});
+    }
+
+    [HttpGet("/books/{id}/delete")]
+    public ActionResult Delete(int id)
+    {
+      Book foundBook = Book.Find(id);
+      foundBook.Delete();
+      return RedirectToAction("Index");
     }
   }
 }

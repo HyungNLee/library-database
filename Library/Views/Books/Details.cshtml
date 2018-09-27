@@ -1,0 +1,38 @@
+@{
+  Layout = "_Layout";
+}
+
+<h1>@Model["book"].Title</h1>
+<hr>
+<h3>@Model["book"].Title Authors: </h3>
+<ul>
+  @foreach (var author in @Model["book"].GetAuthors())
+  {
+    <a href="/authors/@author.Id"><li>@author.Name</li></a>
+  }
+</ul>
+<hr>
+<h5>Select Existing Author or Add New Author</h5>
+<form action="/books/addauthor" method="post">
+  <input type="hidden" name="bookId" value=@Model["book"].Id>
+  <div class="row">
+    <div class="col-5">
+      <label for="addAuthor">Select Existing Author: </label><br>
+      <select name="addAuthor">
+        @foreach (var author in @Model["authorList"])
+        {
+          <option value=@author.Id>@author.Name</option>
+        }
+      </select>
+    </div>
+    <div class="col-2">
+      <h5>OR</h5>
+    </div>
+    <div class="col-5">
+      <label for ="newAuthor">Add New Author</label>
+      <input type="text" name="newAuthor">
+    </div>
+  </div>
+  <br>
+  <button class="btn btn-success" type="submit">Add Book</button>
+</form>
