@@ -13,6 +13,13 @@ namespace Library.Controllers
       List<Patron> allPatrons = Patron.GetAll();
       return View(allPatrons);
     }
-    
+    [HttpPost("/patrons/new")]
+    public ActionResult Create(string newPatron)
+    {
+      Patron newPerson = new Patron(newPatron);
+      newPerson.Save();
+      return RedirectToAction("Index");
+    }
+
   }
 }

@@ -1,3 +1,29 @@
 @{
   Layout = "_Layout";
 }
+
+<h2>All Patrons in Database</h2>
+<table class="table">
+  <thead class="thead">
+    <tr>
+      <th scope="col">ID</th>
+      <th scope="col">Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach (var patron in Model)
+    {
+      <tr>
+        <th scope="row">@patron.Id</th>
+        <td><a href="/patrons/@patron.Id">@patron.Name</a></td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+<h3>Add A New Patron</h3>
+<form action="/patrons/new" method="post">
+  <label for="newPatron">Patron Name</label>
+  <input type="text" name="newPatron" />
+  <button type="submit" class="btn btn-success">Add Patron</button>
+</form>
